@@ -1,9 +1,10 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
+from app.exception import NotFoundException
 from app.schema.product import ProductBrief, ProductCreate, ProductResponse, ProductUpdate
 from app.service.product_service import ProductService
 
@@ -21,8 +22,8 @@ async def create_product(
 async def list_products(
     db: Annotated[AsyncSession, Depends(get_db)],
     keyword: str | None = Query(default=None, description="検索キーワード"),
-    category_id: int | None = Query(default=None, description="カテゴリIDによる絞り込み"),
-    brand: str | None = Query(default=None, description="ブランドによる絞り込み"),
+    category_id: int | None = Query(default=None, description="カテゴリIDでの絞り込み"),
+    brand: str | None = Query(default=None, description="ブランドでの絞り込み"),
     page: int = Query(default=1, ge=1, description="ページ番号"),
     page_size: int = Query(default=20, ge=1, le=100, description="1ページあたりの件数"),
 ):
@@ -41,7 +42,7 @@ async def get_product(
 ):
     result = await ProductService(db).get_product(product_id)
     if result is None:
-        raise HTTPException(status_code=404, detail="商品が存在しません")
+        raise NotFoundException(message="商品が存在しません")
     return result
 
 
@@ -53,7 +54,7 @@ async def update_product(
 ):
     result = await ProductService(db).update_product(product_id, data)
     if result is None:
-        raise HTTPException(status_code=404, detail="商品が存在しません")
+        raise NotFoundException(message="商品が存在しません")
     return result
 
 
@@ -63,4 +64,4 @@ async def delete_product(
 ):
     deleted = await ProductService(db).delete_product(product_id)
     if not deleted:
-        raise HTTPException(status_code=404, detail="商品が存在しません")
+        raise NotFoundException(message="商品が存在しません")

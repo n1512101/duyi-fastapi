@@ -1,9 +1,10 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
+from app.exception import NotFoundException
 from app.schema.sku import SkuCreate, SkuResponse, SkuUpdate
 from app.service.sku_service import SkuService
 
@@ -23,7 +24,7 @@ async def create_sku(
 ):
     result = await SkuService(db).create_sku(product_id, data)
     if result is None:
-        raise HTTPException(status_code=404, detail="商品が存在しません")
+        raise NotFoundException(message="商品が存在しません")
     return result
 
 
@@ -41,7 +42,7 @@ async def list_skus(
 async def get_sku(sku_id: int, db: Annotated[AsyncSession, Depends(get_db)]):
     result = await SkuService(db).get_sku(sku_id)
     if result is None:
-        raise HTTPException(status_code=404, detail="SKUが存在しません")
+        raise NotFoundException(message="SKUが存在しません")
     return result
 
 
@@ -53,7 +54,7 @@ async def update_sku(
 ):
     result = await SkuService(db).update_sku(sku_id, data)
     if result is None:
-        raise HTTPException(status_code=404, detail="SKUが存在しません")
+        raise NotFoundException(message="SKUが存在しません")
     return result
 
 
@@ -61,16 +62,16 @@ async def update_sku(
 async def delete_sku(sku_id: int, db: Annotated[AsyncSession, Depends(get_db)]):
     deleted = await SkuService(db).delete_sku(sku_id)
     if not deleted:
-        raise HTTPException(status_code=404, detail="SKUが存在しません")
+        raise NotFoundException(message="SKUが存在しません")
 
 
 @router.patch("/api/skus/{sku_id}/stock", response_model=SkuResponse)
 async def update_stock(
     sku_id: int,
     db: Annotated[AsyncSession, Depends(get_db)],
-    stock: int = Query(..., ge=0, description="新しい在庫数"),
+    stock: int = Query(..., ge=0, description="新しい在庫数量"),
 ):
     result = await SkuService(db).update_stock(sku_id, stock)
     if result is None:
-        raise HTTPException(status_code=404, detail="SKUが存在しません")
+        raise NotFoundException(message="SKUが存在しません")
     return result
