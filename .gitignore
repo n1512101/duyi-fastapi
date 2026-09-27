@@ -3,3 +3,11 @@
 .venv
 .vscode
 __pycache__
+
+# temp
+/temp
+/tmp
+
+# test
+.coverage
+htmlcov/

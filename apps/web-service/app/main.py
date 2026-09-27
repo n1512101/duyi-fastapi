@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException
-
+from app.core.middleware import register_middleware
+from app.core.openapi import setup_openapi
 from app.core.config import common_settings, web_settings
 from app.exception.handler.docs import generate_error_docs
 from app.exception.handler.handlers import exception_handler
@@ -15,6 +16,11 @@ app = FastAPI(
         None if common_settings.environment == "production" else "/openapi.json"
     ),
 )
+
+# ミドルウェア
+register_middleware(app)
+# openapiスキーマ設定
+setup_openapi(app)
 
 # グローバル例外ハンドラの登録（Starlette/FastAPI 内蔵ハンドラを上書き + 未知の例外のフォールバック）
 app.add_exception_handler(RequestValidationError, exception_handler)

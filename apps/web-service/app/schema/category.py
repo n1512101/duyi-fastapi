@@ -9,7 +9,9 @@ class CategoryCreate(BaseModel):
 
 
 class CategoryUpdate(BaseModel):
-    name: str | None = Field(default=None, min_length=1, max_length=50, description="カテゴリ名")
+    name: str | None = Field(
+        default=None, min_length=1, max_length=50, description="カテゴリ名"
+    )
     description: str | None = Field(default=None, description="カテゴリ説明")
 
 
@@ -23,6 +25,7 @@ class CategoryResponse(BaseModel):
 
 class CategoryDetailResponse(BaseModel):
     """カテゴリ詳細。関連する商品リストを含む"""
+
     id: int
     name: str
     description: str

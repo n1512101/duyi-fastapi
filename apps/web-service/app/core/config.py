@@ -14,6 +14,8 @@ class _CommonSettings(_BaseSettingsWithEnv):
 # Web サービス設定
 class _WebSettings(_BaseSettingsWithEnv):
     app_name: str = "Web Service API"  # 実際には WEB_APP_NAME を読み取る
+    cors_origins: str = ""
+    cors_expose_headers: str = ""
 
     # 設定の読み込み方法
     model_config = {"env_prefix": "WEB_"}
