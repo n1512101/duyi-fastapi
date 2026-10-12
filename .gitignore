@@ -1,13 +1,33 @@
-.db
-.env
-.venv
-.vscode
-__pycache__
+# mac
+DS_Store
 
 # temp
 /temp
 /tmp
 
+# cache
+__pycache__
+
+# env
+.env
+.env.test
+
+
+# frontend
+node_modules
+
+# build
+__pycache__/
+*.py[cod]
+build/
+*.egg-info/
+.venv/
+.env
+
+# db
+.db
+
 # test
 .coverage
+.coverage.*
 htmlcov/
