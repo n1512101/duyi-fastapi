@@ -12,11 +12,17 @@ from app.schema.product import (
 )
 from app.service.base import BaseService, PageResult
 from app.exception.database import DatabaseException
+from app.core.logger import service_logger
 
 
 class ProductService(BaseService):
+    @service_logger(
+        action="创建商品",
+        entity="Product",
+        id_extractor=lambda args, kwargs, result: str(result.id) if result else "",
+    )
     async def create_product(self, data: ProductCreate) -> ProductResponse:
-        """商品を作成し、同時にカテゴリとの関連を構築する"""
+        """创建商品，同时建立与分类的关联"""
         product = Product(
             name=data.name,
             description=data.description,
@@ -36,7 +42,7 @@ class ProductService(BaseService):
                 )
             except sa_exc.IntegrityError as e:
                 raise DatabaseException(
-                    message="関連するカテゴリが存在しません",
+                    message="关联的分类不存在",
                     detail=str(e),
                     original_exception=e,
                 ) from e
@@ -46,7 +52,7 @@ class ProductService(BaseService):
         return result
 
     async def get_product(self, product_id: int) -> ProductResponse | None:
-        """ID で商品詳細を取得する。関連するカテゴリリストと SKU リストを含む"""
+        """根据ID获取商品详情，包含关联的分类列表和SKU列表"""
         stmt = (
             select(Product)
             .options(selectinload(Product.categories), selectinload(Product.skus))
@@ -67,7 +73,7 @@ class ProductService(BaseService):
         page: int = 1,
         page_size: int = 20,
     ) -> PageResult[ProductBrief]:
-        """商品リストをページングで検索する。キーワード・カテゴリ・ブランドによる絞り込みに対応"""
+        """分页搜索商品列表，支持按关键词、分类、品牌筛选"""
         query = select(Product)
 
         if category_id is not None:
@@ -99,7 +105,7 @@ class ProductService(BaseService):
     async def update_product(
         self, product_id: int, data: ProductUpdate
     ) -> ProductResponse | None:
-        """商品情報を更新する。渡されたフィールドのみ更新"""
+        """更新商品信息，仅更新传入的字段"""
         product = await self._get_product_orm(product_id)
         if product is None:
             return None
@@ -127,17 +133,24 @@ class ProductService(BaseService):
                     )
                 except sa_exc.IntegrityError as e:
                     raise DatabaseException(
-                        message="関連するカテゴリが存在しません",
+                        message="关联的分类不存在",
                         detail=str(e),
                         original_exception=e,
                     ) from e
 
         await self.db.flush()
-        # 再読み込みして、返却する DTO に最新の関連データが含まれることを保証する
+        # 重新加载，确保返回的 DTO 包含最新的关联数据
         return await self.get_product(product_id)
 
+    @service_logger(
+        action="删除商品",
+        entity="Product",
+        id_extractor=lambda args, kwargs, result: str(
+            kwargs.get("product_id", args[0] if args else "")
+        ),
+    )
     async def delete_product(self, product_id: int) -> bool:
-        """商品を削除する。関連する SKU はカスケード削除される"""
+        """删除商品，关联的SKU会级联删除"""
         product = await self._get_product_orm(product_id)
         if product is None:
             return False
@@ -146,7 +159,7 @@ class ProductService(BaseService):
         return True
 
     async def _get_product_orm(self, product_id: int) -> Product | None:
-        """内部メソッド: 更新/削除用に ORM オブジェクトを取得する"""
+        """内部方法：获取 ORM 对象，用于更新/删除"""
         stmt = (
             select(Product)
             .options(selectinload(Product.categories), selectinload(Product.skus))

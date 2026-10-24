@@ -6,8 +6,9 @@ from fastapi.responses import JSONResponse
 
 async def unified_response(request: Request, call_next):
     response = await call_next(request)
-
-    if not request.url.path.startswith("/api/"):
+    if not request.url.path.startswith("/api/") or getattr(
+        request.state, "exception_handled", False
+    ):
         return response
 
     body = b""
@@ -26,4 +27,4 @@ async def unified_response(request: Request, call_next):
     )
 
 
-MIDDLEWARE = (unified_response, {})
+MIDDLEWARE: tuple[object, dict[str, object]] = (unified_response, {})

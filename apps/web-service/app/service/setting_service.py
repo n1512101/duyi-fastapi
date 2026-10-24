@@ -31,6 +31,19 @@ class SettingGroupDef:
 
 SETTINGS_DTO: list[SettingGroupDef] = [
     SettingGroupDef(
+        key="jwt",
+        display_name="JWT配置",
+        description="JWT令牌相关配置",
+        settings=[
+            SettingDef(
+                key="jwt_expire_minutes",
+                value="120",
+                display_name="JWT过期时间",
+                description="JWT令牌过期时间，单位为分钟，默认 120 分钟（2小时）",
+            ),
+        ],
+    ),
+    SettingGroupDef(
         key="aliyun_oss",
         display_name="阿里云OSS上传设置",
         description="阿里云OSS对象存储上传配置",
@@ -170,6 +183,8 @@ class SettingService(BaseService):
             .order_by(SettingGroup.id)
         )
         groups = result.unique().scalars().all()
+        for g in groups:
+            g.settings.sort(key=lambda s: s.id)
         return [SettingGroupResponse.model_validate(g) for g in groups]
 
     async def update_settings(
