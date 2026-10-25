@@ -1,7 +1,7 @@
 import os
 import shutil
 
-source_dir = "/Users/noguchihakuichi/Desktop/programming/duyi-edu/duyi-framework/18. 日志/duyi-service"
+source_dir = "/Users/noguchihakuichi/Desktop/programming/duyi-edu/duyi-framework/20. 流式响应/duyi-service"
 
 target_dir = "/Users/noguchihakuichi/Desktop/duyi-service"
 

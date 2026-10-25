@@ -56,7 +56,7 @@ class UserService(BaseService):
 
         token = create_token(
             {"sub": user.id},
-            web_settings.jwt_secret_key,
+            secret_key=web_settings.jwt_secret_key,
             expires_delta=timedelta(minutes=expire_minutes),
         )
         return TokenResponse(access_token=token)

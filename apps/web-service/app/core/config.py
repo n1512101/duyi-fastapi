@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings
 
 
 class BaseSettingsWithEnv(BaseSettings):
-    model_config = {"env_file": ".env", "extra": "ignore"}
+    model_config = {"env_file": "apps/.env", "extra": "ignore"}
 
 
 class CommonSettings(BaseSettingsWithEnv):

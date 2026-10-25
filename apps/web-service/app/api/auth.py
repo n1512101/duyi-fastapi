@@ -6,7 +6,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.auth import get_current_user
 from app.core.database import get_db
 from app.model.user import User
-from app.schema.user import ChangePassword, UserLogin, UserRegister, TokenResponse, UserResponse
+from app.schema.user import (
+    ChangePassword,
+    UserLogin,
+    UserRegister,
+    TokenResponse,
+    UserResponse,
+)
 from app.service.user_service import UserService
 
 router = APIRouter(prefix="/api/auth", tags=["认证"])
